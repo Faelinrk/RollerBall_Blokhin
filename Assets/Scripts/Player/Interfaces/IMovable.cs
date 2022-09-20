@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RollerBall.Player
+namespace RollerBall
 {
     
-    public interface IPlayerMovement
+    public interface IMovable
     {
         void Move(float verticalMove,float horizontalMove);
     }
