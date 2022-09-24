@@ -5,51 +5,54 @@ using static UnityEngine.Debug;
 
 namespace RollerBall.Interactable
 {
-    public class InteractableObject : MonoBehaviour, IInteractable, ICloneable
+    public class InteractableObject : MonoBehaviour, IEffectable, ICloneable
     {
-        protected event Action onInteract;
-        protected Player.Player initiator;
-        private GameObject initiatorObject;
+        protected event Action<GameObject> onInteract;
         public InteractableManager Manager { get; set; }
         private void Start()
         {
-            initiator = FindObjectOfType<Player.Player>();
-            initiatorObject = initiator.PlayerObject;
             AttachEffect(ref onInteract);
         }
-        public virtual void Interact()
+        public virtual GameObject Interact(GameObject interactor)
         {
-            onInteract?.Invoke();
+            onInteract?.Invoke(interactor);
             Destroy(gameObject);
+            return gameObject;
         }
         private void OnDestroy()
         {
             onInteract = null;
         }
-        public virtual void AttachEffect(ref Action action)
+        public virtual void AttachEffect(ref Action<GameObject> action)
         {
 
         }
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject== initiatorObject)
+            GameObject interactorObj;
+            if (other.TryGetComponent<IInteractable>(out IInteractable interactor))
             {
-                Interact();
+                interactorObj = interactor.Interact(gameObject);
+                Debug.Log($"{interactorObj.name} interacted with {gameObject.name}");
+                Interact(interactorObj);
             }
+
+
         }
         public void AddToList(List<InteractableObject> list)
         {
             list.Add(this);
-            onInteract += delegate ()
+            onInteract += delegate (GameObject obj)
             {
                 list.Remove(this);
-                Log("Объект удалён из списка");
+                Log("Object Removed from list");
             };
         }
         public object Clone()
         {
             return Manager.InstantiateObject();
         }
+
     }
 }
 

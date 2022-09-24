@@ -1,21 +1,18 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Debug;
+
 
 namespace RollerBall.Interactable
 {
     public class BonusObject : InteractableObject
     {
         public bool IsPositive { get; private set; } = true;
-        private int bonusPower = 5;
+        [SerializeField] private float healPower = 5;
+        [SerializeField] private float boostPower = 5;
+        [SerializeField] private float biggerPower = 5;
+        [SerializeField] private float smallerPower = .5f;
         
-        public override void Interact()
-        {
-            base.Interact();
-        }
-        
-        public override void AttachEffect(ref Action action)
+        public override void AttachEffect(ref Action<GameObject> action)
         {
             int randomEffect = UnityEngine.Random.Range(1, 4);
             switch (randomEffect)
@@ -38,27 +35,25 @@ namespace RollerBall.Interactable
                     break;
             }
         }
-        private void Heal()
+        private void Heal(GameObject obj)
         {
-            initiator.Hp += bonusPower;
-            Log("Heal");
+            if (obj.TryGetComponent(out IHealable initiator))
+                initiator.Heal(healPower);
         }
-        private void SpeedUp()
+        private void SpeedUp(GameObject obj)
         {
-            initiator.Speed += bonusPower;
-            Log("SpeedUp");
+            if (obj.TryGetComponent(out IBoostable initiator))
+                initiator.Boost(boostPower);
         }
-        private void MakeSmaller()
+        private void MakeSmaller(GameObject obj)
         {
-            Vector3 playerScale = initiator.PlayerObject.transform.localScale;
-            initiator.PlayerObject.transform.localScale = new UnityEngine.Vector3(playerScale.x / bonusPower, playerScale.y / bonusPower, playerScale.z / bonusPower);
-            Log("MakeSmaller");
+            if (obj.TryGetComponent(out IResizable initiator))
+                initiator.Resize(smallerPower);
         }
-        private void MakeBigger()
+        private void MakeBigger(GameObject obj)
         {
-            Vector3 playerScale = initiator.PlayerObject.transform.localScale;
-            initiator.PlayerObject.transform.localScale = new UnityEngine.Vector3(playerScale.x * bonusPower, playerScale.y * bonusPower, playerScale.z * bonusPower);
-            Log("MakeBigger");
+            if (obj.TryGetComponent(out IResizable initiator))
+                initiator.Resize(biggerPower);
         }
 
         

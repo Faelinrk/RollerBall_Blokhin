@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-namespace RollerBall.Player
+namespace RollerBall.Units
 {
     public class PlayerJoystick : Player
     {

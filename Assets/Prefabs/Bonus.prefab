@@ -150,6 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77ddbc2dec7d83942acc3d6685966062, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  healPower: 5
+  boostPower: 2
+  biggerPower: 5
+  smallerPower: 0.8
 --- !u!135 &6900745420255778138
 SphereCollider:
   m_ObjectHideFlags: 0

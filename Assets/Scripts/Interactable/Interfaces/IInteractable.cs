@@ -1,11 +1,11 @@
 using System;
+using UnityEngine;
 
 namespace RollerBall
 {
     public interface IInteractable
     {
-        void Interact();
-        void AttachEffect(ref Action action);
+        GameObject Interact(GameObject interactor);// return gameobject with interaction interface
     }
 
 }

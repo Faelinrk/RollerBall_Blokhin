@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using static UnityEngine.Debug;
 
@@ -6,12 +7,9 @@ namespace RollerBall.Interactable
 {
     public class TrapObject : InteractableObject
     {
-        private int trapPower;
-        public override void Interact()
-        {
-            base.Interact();
-        }
-        public override void AttachEffect(ref Action action)
+        [SerializeField] private float speedDownPower = -5;
+        [SerializeField] private float damage = 5;
+        public override void AttachEffect(ref Action<GameObject> action)
         {
             int randomEffect = UnityEngine.Random.Range(1, 3);
             switch (randomEffect)
@@ -27,20 +25,22 @@ namespace RollerBall.Interactable
                     break;
             }
         }
-        void Kill()
+        void Kill(GameObject obj)
         {
-            SceneManager.LoadScene(0);
-            Log("Вы были убиты");
+            if (obj.TryGetComponent(out IKillable initiator))
+                initiator.Kill();
         }
-        void SpeedDown()
+        void SpeedDown(GameObject obj)
         {
-            initiator.Speed -= trapPower;
-            Log("SpeedDown");
+            if (obj.TryGetComponent(out IBoostable initiator))
+                initiator.Boost(speedDownPower);
+            else Kill(obj);
         }
-        void DealDamage()
+        void DealDamage(GameObject obj)
         {
-            initiator.Hp -= trapPower;
-            Log("DamageDealed");
+            if (obj.TryGetComponent(out IDamageble initiator))
+                initiator.Damage(damage);
+            else Kill(obj);
         }
         
     }
