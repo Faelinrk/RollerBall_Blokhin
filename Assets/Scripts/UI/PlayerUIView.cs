@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
+using RollerBall.Units;
 using TMPro;
 using UnityEngine;
-using RollerBall.Units;
 
 namespace RollerBall.UI
 {
-    public class UIManager : MonoBehaviour
+    public class PlayerUIView : MonoBehaviour
     {
         [SerializeField] TMP_Text hpText;
         [SerializeField] TMP_Text speedText;

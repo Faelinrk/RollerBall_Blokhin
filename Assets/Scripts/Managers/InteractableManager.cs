@@ -7,7 +7,7 @@ using RollerBall.Exceptions;
 namespace RollerBall.Interactable
 {
 
-    public class InteractableManager : MonoBehaviour
+    public class InteractableManager : MonoBehaviour, ICountable
     {
         [SerializeField] private InteractableObject[] objectPrefabs;
         [SerializeField] private List<Transform> objectPositions;
@@ -56,6 +56,11 @@ namespace RollerBall.Interactable
             objectPositions.Remove(randomObjectPosition);
             objectInstance.Manager = this;
             return objectInstance;
+        }
+
+        public virtual int Count()
+        {
+            return 0;
         }
     }
 }

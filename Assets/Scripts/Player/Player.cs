@@ -5,7 +5,7 @@ using static UnityEngine.Debug;
 
 namespace RollerBall.Units
 {
-    public abstract class Player : MonoBehaviour, IMovable, IBoostable, IResizable, IDamageble, IHealable, IKillable
+    public class Player : MonoBehaviour, IMovable, IBoostable, IResizable, IDamageble, IHealable, IKillable
     {
         
         [SerializeField] protected float speed = 25f;
@@ -17,7 +17,7 @@ namespace RollerBall.Units
         #region Events
         public static event Action<float> OnHpChanged;
         public static event Action<float> OnSpeedChanged;
-        private event Action onInitialize;
+        public static event Action<IMovable> OnInitialize;
         #endregion
 
         #region Properties
@@ -51,36 +51,43 @@ namespace RollerBall.Units
         }
 
         #region Initialize
-        private void Init() // Initialize for event call
+        private void Init(IMovable unit) // Init for event call
         {
             Hp = hp;
             Speed = speed;
         }
         void OnEnable() // Scene event connection
         {
-            onInitialize += Init;
+            OnInitialize += Init;
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         void OnSceneLoaded(Scene scene, LoadSceneMode mode) // Initialize event call
         {
             Debug.Log("OnSceneLoaded: " + scene.name);
-            onInitialize?.Invoke();
+            OnInitialize?.Invoke(FindObjectOfType<Player>().GetComponent<IMovable>());
+        }
+        private void OnDestroy()
+        {
+            OnInitialize = null;
         }
         #endregion
 
-        public void Move(float verticalMove,float horizontalMove)
+
+
+        #region InterfaceRealize
+
+        public void Move(float verticalMove, float horizontalMove)
         {
             if (verticalMove != 0 || horizontalMove != 0)
             {
                 rb.angularVelocity = new Vector3(verticalMove * Speed, 0, -horizontalMove * Speed);
                 rb.velocity = new Vector3(horizontalMove * Speed, rb.velocity.y, verticalMove * Speed);
-                transform.position = playerObject.transform.position +  followOffset;
+                transform.position = playerObject.transform.position + followOffset;
             }
-            
+
         }
 
-        #region InterfaceRealize
         public void Boost(float boost)
         {
             Speed += boost;
@@ -112,6 +119,8 @@ namespace RollerBall.Units
             Log("You've beed killed");
         }
         #endregion
+
+        
     }
 }
 

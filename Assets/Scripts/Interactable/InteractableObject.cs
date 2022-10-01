@@ -7,21 +7,22 @@ namespace RollerBall.Interactable
 {
     public class InteractableObject : MonoBehaviour, IEffectable, ICloneable
     {
-        protected event Action<GameObject> onInteract;
+        public event Action<GameObject> OnInteract;
+
         public InteractableManager Manager { get; set; }
         private void Start()
         {
-            AttachEffect(ref onInteract);
+            AttachEffect(ref OnInteract);
         }
         public virtual GameObject Interact(GameObject interactor)
         {
-            onInteract?.Invoke(interactor);
+            OnInteract?.Invoke(interactor);
             Destroy(gameObject);
             return gameObject;
         }
         private void OnDestroy()
         {
-            onInteract = null;
+            OnInteract = null;
         }
         public virtual void AttachEffect(ref Action<GameObject> action)
         {
@@ -39,15 +40,7 @@ namespace RollerBall.Interactable
 
 
         }
-        public void AddToList(List<InteractableObject> list)
-        {
-            list.Add(this);
-            onInteract += delegate (GameObject obj)
-            {
-                list.Remove(this);
-                Log("Object Removed from list");
-            };
-        }
+
         public object Clone()
         {
             return Manager.InstantiateObject();
