@@ -16,7 +16,7 @@ namespace RollerBall.Extensions
             }
             return len;
         }
-        public static int IntElementCount(this List<int> list, int element) // Метод-расширение для поиска количества чисел в инт листе
+        public static int IntElementCount(this List<int> list, int element) // Extension Method for int array search
         {
             int count = 0;
             foreach (int el in list)
@@ -24,7 +24,7 @@ namespace RollerBall.Extensions
                     count += 1;
             return count;
         }
-        public static int CommonListElementCount<T>(this List<T> list, object element) // Метод-расширение для поиска в обобщённой коллекции
+        public static int CommonListElementCount<T>(this List<T> list, object element) // Extension Method for common array search
         {
             int count = 0;
             foreach (T el in list)
@@ -33,7 +33,7 @@ namespace RollerBall.Extensions
             return count;
         }
 
-        public static int CommonListElementCountLinq<T>(this List<T> list, object element) // Метод-расширение для поиска в обобщённой коллекции
+        public static int CommonListElementCountLinq<T>(this List<T> list, object element) // Extension Linq Method for common array search
         {
             var equalsList = list.Count(e => e.Equals(element));
             return equalsList;

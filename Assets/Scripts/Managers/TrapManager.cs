@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static UnityEngine.Debug;
 
@@ -11,13 +12,23 @@ namespace RollerBall.Interactable
         private List<InteractableObject> traps = new List<InteractableObject>();
         public static event Action<int> OnTrapsCountChanged;
 
-        public InteractableObject this[int index]
+        #region Data
+        private List<Vector3> trapsPositions = new List<Vector3>();
+        private const string SavingPath = "Traps";
+
+        public override void SaveData()
         {
-            get
-            {
-                return traps[index];
-            }
+            trapsPositions = traps.Select(t => t.transform.position).ToList();
+            dataSo.InitializeSaver(SavingPath, trapsPositions);
+            dataSo.SaveData();
         }
+
+        public override void LoadData()
+        {
+            objectPositions = dataSo.LoadData(SavingPath);
+            objectCount = objectPositions.Count;
+        }
+        #endregion
 
         private void SortTraps(TrapObject trapInstance)
         {
@@ -28,13 +39,31 @@ namespace RollerBall.Interactable
                 traps.Remove(trapInstance);
                 OnTrapsCountChanged?.Invoke(Count());
             };
+            if (Count() >= objectCount)
+            {
+                SaveData(); // save if all traps set
+            }
         }
+
         public override InteractableObject InstantiateObject()
         {
             TrapObject objectInstance = (TrapObject)base.InstantiateObject();
             objectInstance.Manager = this;
             SortTraps(objectInstance);
             return objectInstance;
+        }
+        private void OnDestroy()
+        {
+            OnTrapsCountChanged = null;
+        }
+
+        #region Interfaces
+        public InteractableObject this[int index]
+        {
+            get
+            {
+                return traps[index];
+            }
         }
 
         public IEnumerator GetEnumerator()
@@ -47,15 +76,12 @@ namespace RollerBall.Interactable
             }
 
         }
-
         public override int Count()
         {
             return traps.Count;
         }
-        private void OnDestroy()
-        {
-            OnTrapsCountChanged = null;
-        }
+        #endregion
+
     }
 }
 

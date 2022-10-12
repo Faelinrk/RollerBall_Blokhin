@@ -3,33 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.Debug;
 using RollerBall.Exceptions;
+using RollerBall.Data;
 
 namespace RollerBall.Interactable
 {
 
-    public class InteractableManager : MonoBehaviour, ICountable
+    public abstract class InteractableManager : MonoBehaviour, ICountable, ISavable<List<Vector3>>
     {
         [SerializeField] private InteractableObject[] objectPrefabs;
-        [SerializeField] private List<Transform> objectPositions;
-        [SerializeField] private int objectCount;
-
+        [SerializeField] protected List<Transform> objectTransforms;
+        protected List<Vector3> objectPositions = new List<Vector3>();
+        [SerializeField] protected int objectCount;
+        [SerializeField] protected PositionDataSO dataSo;
 
         private void Start()
         {
-            InstantiateObjects();
-        }
-
-        private void InstantiateObjects()
-        {
-            for (int i = 0; i < objectCount; i++)
+            foreach(var tr in objectTransforms)
             {
-                InstantiateObject();
+                objectPositions.Add(tr.position);
             }
         }
 
         public virtual InteractableObject InstantiateObject()
         {
-            Transform randomObjectPosition;
+            Vector3 randomObjectPosition;
             InteractableObject randomObjectPrefab;
             try
             {
@@ -46,21 +43,47 @@ namespace RollerBall.Interactable
                 if (objectPrefabs.Length <= 0) throw new Exception("List of interactable objects is empty");
                 randomObjectPrefab = objectPrefabs[UnityEngine.Random.Range(0, objectPrefabs.Length - 1)];
             }
-            catch(ListIsEmptyException e)
+            catch (ListIsEmptyException e)
             {
                 LogWarning(e);
                 return null;
             }
-            
-            InteractableObject objectInstance = Instantiate(randomObjectPrefab, randomObjectPosition.position, Quaternion.identity) as InteractableObject;
+
+            InteractableObject objectInstance = Instantiate(randomObjectPrefab, randomObjectPosition, Quaternion.identity) as InteractableObject;
             objectPositions.Remove(randomObjectPosition);
             objectInstance.Manager = this;
             return objectInstance;
         }
 
+        public void InstantiateFromLoad()
+        {
+            LoadData();
+            InstantiateObjects();
+        }
+        public void Instantiate()
+        {
+            InstantiateObjects();
+        }
+
+        private void InstantiateObjects()
+        {
+            for (int i = 0; i < objectCount; i++)
+            {
+                InstantiateObject();
+            }
+        }
+
         public virtual int Count()
         {
             return 0;
+        }
+
+        public virtual void SaveData()
+        {
+        }
+
+        public virtual void LoadData()
+        {
         }
     }
 }

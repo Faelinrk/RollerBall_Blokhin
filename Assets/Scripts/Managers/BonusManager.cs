@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using RollerBall.Data;
+using System.Linq;
 
 namespace RollerBall.Interactable
 {
@@ -11,19 +13,26 @@ namespace RollerBall.Interactable
         private List<InteractableObject> negativeBonuses = new List<InteractableObject>();
         public static event Action<int> OnBonusCountChanged;
 
+        #region Data
+        private List<Vector3> bonusPositions;
+        private const string SavingPath = "Bonuses";
 
-        public InteractableObject this[int index]
+        public override void SaveData()
         {
-            get
-            {
-                if (index < positiveBonuses.Count)
-                {
-                    return positiveBonuses[index];
-                }
-
-                return negativeBonuses[index];
-            }
+            bonusPositions = positiveBonuses.Select(t => t.transform.position)
+                .Union(negativeBonuses.Select(t => t.transform.position))
+                .ToList();
+            dataSo.InitializeSaver(SavingPath, bonusPositions);
+            dataSo.SaveData();
         }
+
+        public override void LoadData()
+        {
+            objectPositions = dataSo.LoadData(SavingPath);
+            objectCount = objectPositions.Count;
+        }
+        #endregion
+
 
         private void SortBonuses(BonusObject bonusInstance)
         {
@@ -45,10 +54,13 @@ namespace RollerBall.Interactable
                     OnBonusCountChanged?.Invoke(Count());
                 };
             }
-            OnBonusCountChanged?.Invoke(Count());
-            
-
+            if (Count() >= objectCount)
+            {
+                SaveData(); // save if all bonuses set
+            }
+            OnBonusCountChanged?.Invoke(Count()); 
         }
+
         public override InteractableObject InstantiateObject()
         {
             BonusObject objectInstance = (BonusObject)base.InstantiateObject();
@@ -56,6 +68,12 @@ namespace RollerBall.Interactable
             return objectInstance;
         }
 
+        private void OnDestroy()
+        {
+            OnBonusCountChanged = null;
+        }
+
+        #region Interfaces
         public IEnumerator GetEnumerator()
         {
             int i = 0;
@@ -71,15 +89,26 @@ namespace RollerBall.Interactable
                 i += 1;
             }
         }
+
+        public InteractableObject this[int index]
+        {
+            get
+            {
+                if (index < positiveBonuses.Count)
+                {
+                    return positiveBonuses[index];
+                }
+
+                return negativeBonuses[index];
+            }
+        }
         public override int Count()
         {
             return positiveBonuses.Count + negativeBonuses.Count;
         }
+        #endregion
 
-        private void OnDestroy()
-        {
-            OnBonusCountChanged = null;
-        }
+
     }
 }
 
