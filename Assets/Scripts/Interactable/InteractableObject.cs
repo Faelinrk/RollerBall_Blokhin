@@ -36,7 +36,7 @@ namespace RollerBall.Interactable
             if (other.TryGetComponent<IInteractable>(out IInteractable interactor))
             {
                 interactorObj = interactor.Interact(gameObject);
-                Debug.Log($"{interactorObj.name} interacted with {gameObject.name}");
+                Debug.Log($"{(interactorObj.name,gameObject.name)} in touch");
                 Interact(interactorObj);
             }
 

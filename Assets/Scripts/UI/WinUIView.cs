@@ -17,6 +17,7 @@ namespace RollerBall.UI
             if (bonusCout <= 0)
             {
                 panel.SetActive(true);
+                PlayerPrefs.SetInt("Progress", PlayerPrefs.GetInt("Progress", 0) + 1);
             }
         }
     }
